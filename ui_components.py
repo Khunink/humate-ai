@@ -1,37 +1,82 @@
 import streamlit as st
+import uuid
+import datetime
+import time
+from database_handler import save_feedback
 
 def apply_custom_css():
-    """ฟังก์ชันสำหรับรวมสไตล์ CSS ทั้งหมด (Requirement 2.1: รองรับ Dark/Light Mode)"""
+    """ฟังก์ชันแต่งสวย: รองรับทั้งโหมดมืดและสว่างอัตโนมัติ"""
     st.markdown("""
         <style>
-        .stApp { background-color: transparent; } /* ให้ปรับตามธีมของ Browser */
+        /* ปรับพื้นหลังตาม Theme ของระบบ */
+        .stApp {
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
         
-        /* จัดตำแหน่งข้อความแชท */
-        [data-testid="stChatMessage"] { padding: 1rem 0 !important; }
+        .center-btn-container {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
         
-        /* สไตล์ปุ่มจบการสนทนาให้อยู่ตรงกลาง (Requirement 3) */
-        .center-btn-container { display: flex; justify-content: center; width: 100%; margin-bottom: 20px; }
-        .stButton > button { 
-            border-radius: 25px !important; 
-            color: #DC3545 !important; 
-            border: 1px solid #DEE2E6 !important;
+        /* ตกแต่งปุ่มให้เด่นชัด */
+        div.stButton > button {
+            background-color: #ff4b4b;
+            color: white !important;
+            border-radius: 20px;
+            padding: 10px 25px;
+            border: none;
         }
         </style>
     """, unsafe_allow_html=True)
 
 def show_feedback_page(session_id):
-    st.title("📊 แบบประเมินความพึงพอใจ")
+    """หน้าประเมินผล 5 ดาว และระบบ Reset กลับหน้าหลัก"""
+    st.markdown("<h1 style='text-align: center;'>📊 ประเมินความพึงพอใจ</h1>", unsafe_allow_html=True)
+    st.write("คะแนนของคุณช่วยให้ Hu-Mate พัฒนาได้ดียิ่งขึ้นค่ะ")
+
+    st.write("---")
+    # คะแนน 5 ดาว (ระบบจะส่งค่า 0-4 ออกมา)
+    st.write("**1. ความแม่นยำของคำแนะนำ**")
+    q1 = st.feedback("stars", key="q1")
     
-    with st.form("feedback_form"):
-        q1 = st.select_slider("1. ข้อมูลที่ได้รับมีความถูกต้อง", options=["1", "2", "3" , "4", "5"])
-        q2 = st.select_slider("2. ความครบถ้วนของข้อมูล", options=["1", "2", "3" , "4", "5"])
-        q3 = st.select_slider("3. ความพึงพอใจต่อ HU-Mate", options=["1", "2", "3" , "4", "5"])
-        q4 = st.text_area("4. ข้อเสนอแนะเพิ่มเติม")
-        
-        if st.form_submit_button("บันทึกข้อมูล"):
-            # ส่งข้อมูลไปบันทึกที่ Database
-            feedback_data = [str(uuid.uuid4()), session_id, q1, q2, q3, q4, str(datetime.datetime.now())]
-            save_feedback(feedback_data)
-            st.success("ขอบคุณสำหรับคำแนะนำค่ะ!")
-            return True
-    return False
+    st.write("**2. ความรวดเร็วในการตอบ**")
+    q2 = st.feedback("stars", key="q2")
+
+    st.write("**3. ความสุภาพและเป็นมิตร**")
+    q3 = st.feedback("stars", key="q3")
+
+    st.write("**4. ความง่ายในการใช้งานระบบ**")
+    q4 = st.feedback("stars", key="q4")
+
+    st.write("---")
+    comment = st.text_area("ข้อเสนอแนะเพิ่มเติม", placeholder="บอกความรู้สึกของคุณ...")
+
+    if st.button("บันทึกการประเมิน", use_container_width=True):
+        if q1 is not None and q2 is not None and q3 is not None and q4 is not None:
+            # เตรียมข้อมูล (บวก 1 เพื่อให้เป็นคะแนน 1-5)
+            feedback_data = [
+                str(uuid.uuid4()), 
+                session_id, 
+                q1 + 1, q2 + 1, q3 + 1, q4 + 1, 
+                comment,
+                str(datetime.datetime.now())
+            ]
+            
+            try:
+                save_feedback(feedback_data)
+                st.success("บันทึกข้อมูลสำเร็จ! ระบบจะพากลับไปหน้าหลัก...")
+                
+                # ล้าง Session เพื่อให้เริ่มคุยใหม่ได้ทันที
+                st.session_state.show_feedback = False
+                st.session_state.messages = []
+                st.session_state.session_id = str(uuid.uuid4())
+                
+                time.sleep(1.5)
+                st.rerun() 
+                
+            except Exception as e:
+                st.error(f"เกิดข้อผิดพลาด: {e}")
+        else:
+            st.warning("กรุณาให้ดาวให้ครบทุกหัวข้อก่อนกดบันทึกนะคะ")

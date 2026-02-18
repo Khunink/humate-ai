@@ -1,2 +1,27 @@
-.env
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
 venv/
+ENV/
+env/
+
+# --- Streamlit (ความลับสำคัญ!) ---
+.streamlit/secrets.toml
+
+# --- Google Cloud Keys (กรณีทำหลุดมาในโฟลเดอร์หลัก) ---
+*.json
+
+# --- Operating System ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# --- บันทึก Log ของระบบ ---
+*.log
+
+# --- Environment Variables ---
+.env
