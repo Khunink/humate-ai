@@ -1,21 +1,28 @@
 import streamlit as st
 import uuid
 import platform
-import datetime  # เพิ่มการนำเข้า datetime
+import datetime
+import pytz  # สำหรับจัดการ Timezone
 import config
 from ui_components import apply_custom_css, show_feedback_page
 from api_handler import stream_ai_response
-from database_handler import save_log, save_chat  # นำเข้าฟังก์ชันบันทึกข้อมูล
+from database_handler import save_log, save_chat
+
+# กำหนด Timezone ไทย
+tz = pytz.timezone('Asia/Bangkok')
 
 # จัดการเรื่อง Session ID และ User Log (บันทึกเมื่อเปิดแอปครั้งแรก)
 if "session_id" not in st.session_state:
     st.session_state.session_id = str(uuid.uuid4())
     
+    # ดึงเวลาปัจจุบันแบบไทย
+    timestamp_th = datetime.datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
+    
     # เตรียมข้อมูล Log (ID, วันเวลา, อุปกรณ์)
     user_data = [
         st.session_state.session_id,
         "Guest", 
-        str(datetime.datetime.now()),
+        timestamp_th,
         f"{platform.system()} {platform.release()}", 
         "Streamlit Web"
     ]
@@ -54,7 +61,7 @@ else:
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # ช่องรับคำถาม (จะเก็บคำถามไว้ในตัวแปร prompt)
+    # ช่องรับคำถาม
     if prompt := st.chat_input("พิมพ์ข้อความถามต่อ...", disabled=st.session_state.is_processing):
         st.session_state.messages.append({"role": "user", "content": prompt})
         st.session_state.is_processing = True
@@ -65,20 +72,21 @@ else:
         with st.chat_message("assistant"):
             with st.spinner("Hu-Mate กำลังคิด..."):
                 resp_placeholder = st.empty()
-                # ดึงคำถามล่าสุดจาก messages
+                # ดึงคำถามล่าสุด
                 user_prompt = st.session_state.messages[-1]["content"]
-                # เรียกใช้ Backend
+                # เรียกใช้ API
                 answer = stream_ai_response(st.session_state.messages, resp_placeholder)
                 st.session_state.messages.append({"role": "assistant", "content": answer})
                 
-                # --- ส่วนบันทึก Chat History ลง Google Sheets ---
+                # --- บันทึก Chat History (ใช้เวลาไทย) ---
                 try:
+                    chat_timestamp = datetime.datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
                     chat_entry = [
                         str(uuid.uuid4()),            # chat_id
                         st.session_state.session_id,  # session_id
-                        str(datetime.datetime.now()), # timestamp
-                        user_prompt,                  # คำถามของผู้ใช้
-                        answer                        # คำตอบของ AI
+                        chat_timestamp,               # timestamp ไทย
+                        user_prompt,                  
+                        answer                        
                     ]
                     save_chat(chat_entry)
                 except Exception as e:

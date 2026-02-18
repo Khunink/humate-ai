@@ -2,6 +2,7 @@ import streamlit as st
 import uuid
 import datetime
 import time
+import pytz  # เพิ่มการจัดการ Timezone
 from database_handler import save_feedback
 
 def apply_custom_css():
@@ -27,6 +28,7 @@ def apply_custom_css():
             border-radius: 20px;
             padding: 10px 25px;
             border: none;
+            font-weight: bold;
         }
         </style>
     """, unsafe_allow_html=True)
@@ -34,10 +36,11 @@ def apply_custom_css():
 def show_feedback_page(session_id):
     """หน้าประเมินผล 5 ดาว และระบบ Reset กลับหน้าหลัก"""
     st.markdown("<h1 style='text-align: center;'>📊 ประเมินความพึงพอใจ</h1>", unsafe_allow_html=True)
-    st.write("คะแนนของคุณช่วยให้ Hu-Mate พัฒนาได้ดียิ่งขึ้นค่ะ")
+    st.write("<p style='text-align: center;'>คะแนนของคุณช่วยให้ Hu-Mate พัฒนาได้ดียิ่งขึ้นค่ะ</p>", unsafe_allow_html=True)
 
     st.write("---")
-    # คะแนน 5 ดาว (ระบบจะส่งค่า 0-4 ออกมา)
+    
+    # ส่วนการให้คะแนน (จัดวางให้อ่านง่ายขึ้น)
     st.write("**1. ความแม่นยำของคำแนะนำ**")
     q1 = st.feedback("stars", key="q1")
     
@@ -55,13 +58,18 @@ def show_feedback_page(session_id):
 
     if st.button("บันทึกการประเมิน", use_container_width=True):
         if q1 is not None and q2 is not None and q3 is not None and q4 is not None:
+            
+            # --- แก้ไขเรื่อง Timezone ให้เป็นเวลาไทย ---
+            tz = pytz.timezone('Asia/Bangkok')
+            timestamp_th = datetime.datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
+            
             # เตรียมข้อมูล (บวก 1 เพื่อให้เป็นคะแนน 1-5)
             feedback_data = [
                 str(uuid.uuid4()), 
                 session_id, 
                 q1 + 1, q2 + 1, q3 + 1, q4 + 1, 
                 comment,
-                str(datetime.datetime.now())
+                timestamp_th  # ใช้เวลาไทยที่จัด Format แล้ว
             ]
             
             try:
