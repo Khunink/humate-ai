@@ -1,27 +1,44 @@
-# --- Python ---
-__pycache__/
-*.py[cod]
-*$py.class
-.pytest_cache/
-.venv/
-venv/
-ENV/
-env/
+# ── Secrets ────────────────────────────────────────────────────────────────
+.env
+*.pem
+*.key
 
-# --- Streamlit (ความลับสำคัญ!) ---
+# Streamlit secrets — contains GCP private key, NEVER commit
 .streamlit/secrets.toml
 
-# --- Google Cloud Keys (กรณีทำหลุดมาในโฟลเดอร์หลัก) ---
-*.json
+# ── Python ─────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
 
-# --- Operating System ---
-.DS_Store
-Thumbs.db
+# ── Virtual environments ────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+.env/          # folder (not the .env file, handled above)
+ENV/
+
+# ── IDE / editor ────────────────────────────────────────────────────────────
 .vscode/
 .idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
 
-# --- บันทึก Log ของระบบ ---
+# ── Logs & runtime ──────────────────────────────────────────────────────────
 *.log
+*.pid
+instance/
 
-# --- Environment Variables ---
-.env
+# ── Pytest / coverage ───────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
