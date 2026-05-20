@@ -56,7 +56,7 @@ else:
     # ปุ่มจบการสนทนา
     if len(st.session_state.messages) > 0 and not st.session_state.is_processing:
         st.markdown('<div class="center-btn-container">', unsafe_allow_html=True)
-        if st.button("End Chat"):
+        if st.button("feedback", use_container_width=True):
             st.session_state.show_feedback = True
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
@@ -70,7 +70,7 @@ else:
     # ส่วนที่ AI กำลังประมวลผลคำตอบ
     if st.session_state.is_processing:
         with st.chat_message("assistant"):
-            with st.spinner("Hu-Mate กำลังคิด..."):
+            with st.spinner("Hu-Mate Thinking..."):
                 resp_placeholder = st.empty()
                 # ดึงคำถามล่าสุด
                 user_prompt = st.session_state.messages[-1]["content"]
