@@ -56,13 +56,13 @@ else:
     # ปุ่มจบการสนทนา
     if len(st.session_state.messages) > 0 and not st.session_state.is_processing:
         st.markdown('<div class="center-btn-container">', unsafe_allow_html=True)
-        if st.button("จบการสนทนา"):
+        if st.button("End Chat"):
             st.session_state.show_feedback = True
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
     # ช่องรับคำถาม
-    if prompt := st.chat_input("พิมพ์ข้อความถามต่อ...", disabled=st.session_state.is_processing):
+    if prompt := st.chat_input("พิมพ์ข้อความถามต่อ... / Type your message here...", disabled=st.session_state.is_processing):
         st.session_state.messages.append({"role": "user", "content": prompt})
         st.session_state.is_processing = True
         st.rerun()
