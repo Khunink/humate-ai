@@ -47,7 +47,9 @@ if st.session_state.show_feedback:
     show_feedback_page(st.session_state.session_id)
 else:
     st.markdown("<h1 style='text-align: center;'>✨ Hu-Mate Assist</h1>", unsafe_allow_html=True)
-    
+    st.markdown("<p style='text-align: center; color: grey;'>Easy to Ask, Fast to Flow</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: grey;'>ช่วยประเมินเพื่อเป็นกำลังใจให้ด้วยนะคะ</p>", unsafe_allow_html=True)
+
     # แสดงประวัติการแชท
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
