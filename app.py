@@ -47,7 +47,8 @@ if st.session_state.show_feedback:
     show_feedback_page(st.session_state.session_id)
 else:
     st.markdown("<h1 style='text-align: center;'>✨ Hu-Mate Assist</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: grey;'>Easy to Ask, Fast to Flow</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: grey;'>แชทบอทนี้ให้คำแนะนำขั้นพื้นฐานเท่านั้นและไม่สามารถใช้อ้างอิงอย่างเป็นทางการได้</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: grey;'>This chatbot provides basic guidance only and cannot be used as an official reference.</p>", unsafe_allow_html=True)    
     st.markdown("<p style='text-align: center; color: grey;'>ช่วยประเมินเพื่อเป็นกำลังใจให้ด้วยนะคะ</p>", unsafe_allow_html=True)
 
     # แสดงประวัติการแชท
