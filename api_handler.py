@@ -6,28 +6,24 @@ def stream_ai_response(messages, placeholder):
     """ส่งข้อความไปหา Agent ใน Open WebUI และดึงคำตอบแบบ Streaming"""
     full_response = ""
     try:
-        # 1. ตั้งค่า Header เพื่อยืนยันตัวตนกับ Open WebUI
         headers = {
             "Authorization": f"Bearer {config.API_KEY}",
             "Content-Type": "application/json"
         }
         
-        # 2. เตรียมข้อมูล (Payload)
-        # ไม่ต้องใส่ System Prompt เองที่นี่ เพราะ Agent ใน Open WebUI จัดการให้แล้ว
+        # ส่งแค่ model และ messages ก็พอครับ เพราะ Open WebUI 
+        # จะจัดการเรื่อง RAG/Knowledge ให้เองเมื่อเห็นชื่อรุ่น "hu-mate"
         payload = {
-            "model": config.MODEL_NAME, # จะวิ่งไปเรียก Agent ที่มี RAG ทันที
+            "model": config.MODEL_NAME, 
             "messages": messages,
             "stream": True 
         }
         
-        # 3. ยิง Request ไปที่ Open WebUI API
         response = requests.post(config.API_URL, json=payload, headers=headers, stream=True, timeout=120)
         
-        # ตรวจสอบว่าเชื่อมต่อสำเร็จหรือไม่
         if response.status_code != 200:
             return f"❌ เชื่อมต่อ Open WebUI ไม่สำเร็จ (Status: {response.status_code}): {response.text}"
         
-        # 4. วนลูปอ่านข้อมูล Streaming ที่ส่งกลับมา
         for line in response.iter_lines():
             if line:
                 txt = line.decode('utf-8')
